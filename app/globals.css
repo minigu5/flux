@@ -189,6 +189,14 @@ input { font: inherit; color: inherit; }
 .slot-button:active { transform: scale(0.96); }
 .slot-button:disabled { opacity: 0.45; box-shadow: none; }
 
+/* 뽑는 중에는 같은 버튼이 결과로 건너뛰는 버튼이 된다. */
+.slot-button.is-skip {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .slot-reel { filter: none !important; }
   .slot-bounce.is-landed,

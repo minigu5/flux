@@ -50,6 +50,8 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
   const reelRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
   const rafRef = useRef<number | null>(null);
+  // 뽑는 중에 버튼을 다시 누르면 켜진다. 다음 프레임에서 바로 결과로 넘어간다.
+  const skipRef = useRef(false);
 
   // 최신 값을 애니메이션 콜백에서 읽기 위해 ref로 들고 있는다.
   const countsRef = useRef(counts);
@@ -76,7 +78,12 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
   }, []);
 
   const spin = useCallback(() => {
-    if (rafRef.current !== null) return;
+    // 이미 돌고 있으면 결과로 건너뛴다.
+    if (rafRef.current !== null) {
+      skipRef.current = true;
+      return;
+    }
+    skipRef.current = false;
 
     const winnerId = drawItem(countsRef.current);
     const winnerIndex = ITEMS.findIndex((i) => i.id === winnerId);
@@ -95,7 +102,26 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
     const forward = ((winnerIndex * CELL - remainder) % CYCLE + CYCLE) % CYCLE;
     const endOffset = base + forward;
 
+    /** 릴을 목표 칸에 앉히고 뽑기를 마무리한다. */
+    const finish = () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      offsetRef.current = endOffset;
+      paint(endOffset, 0);
+      setCurrent(winner);
+      setSpinning(false);
+      setGlow(GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)]);
+      setLanded(true);
+      onDrawRef.current(winnerId);
+    };
+
     const tick = (now: number) => {
+      if (skipRef.current) {
+        skipRef.current = false;
+        finish();
+        return;
+      }
+
       const elapsed = now - start;
 
       if (elapsed < SPIN_MS) {
@@ -117,15 +143,7 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
         return;
       }
 
-      // 정확히 목표 칸에 앉힌다.
-      offsetRef.current = endOffset;
-      paint(endOffset, 0);
-      rafRef.current = null;
-      setCurrent(winner);
-      setSpinning(false);
-      setGlow(GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)]);
-      setLanded(true);
-      onDrawRef.current(winnerId);
+      finish();
     };
 
     rafRef.current = requestAnimationFrame(tick);
@@ -155,8 +173,8 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
 
       <p className={`slot-name${spinning ? ' is-spinning' : ''}`}>{current.name}</p>
 
-      <button className="slot-button" onClick={spin} disabled={spinning}>
-        {spinning ? '뽑는 중' : '랜덤 뽑기'}
+      <button className={`slot-button${spinning ? ' is-skip' : ''}`} onClick={spin}>
+        {spinning ? '바로 보기' : '랜덤 뽑기'}
       </button>
       </div>
     </div>
