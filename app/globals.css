@@ -5,7 +5,7 @@
   --line: #bfe6f2;
   --text: #23277a;
   --text-dim: #6672a8;
-  --accent: #ff4fa0;
+  --accent: #ff6fb8;
   --gold: #e6a817;
   --silver: #98a3c2;
   --bronze: #c2793f;
@@ -26,7 +26,7 @@ html, body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Do Hyeon', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', system-ui, sans-serif;
+  font-family: 'Jua', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -163,8 +163,9 @@ input { font: inherit; color: inherit; }
 }
 
 .slot-name {
-  font-size: clamp(20px, 3vw, 34px);
-  font-weight: 700;
+  font-size: clamp(22px, 3.3vw, 37px);
+  font-weight: 400;
+  color: #1a1a1a;
   letter-spacing: -0.02em;
   min-height: 1.4em;
   text-align: center;
@@ -177,11 +178,11 @@ input { font: inherit; color: inherit; }
   min-height: 56px;
   padding: 0 clamp(20px, 3vw, 34px);
   border-radius: 999px;
-  font-size: clamp(15px, 1.8vw, 20px);
-  font-weight: 700;
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 400;
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 8px 22px rgba(255, 79, 160, 0.4);
+  box-shadow: 0 8px 22px rgba(255, 111, 184, 0.4);
   transition: transform 120ms ease, opacity 160ms ease, box-shadow 160ms ease;
 }
 
@@ -223,8 +224,8 @@ input { font: inherit; color: inherit; }
   min-height: 44px;
   padding: 0 22px;
   border-radius: 999px;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 400;
   color: var(--text-dim);
   transition: color 160ms ease, background 200ms ease;
 }
@@ -252,8 +253,8 @@ input { font: inherit; color: inherit; }
   position: absolute;
   top: 8px;
   left: 14px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--text-dim);
 }
 
@@ -280,8 +281,8 @@ input { font: inherit; color: inherit; }
   box-shadow: 0 10px 26px rgba(35, 39, 122, 0.18);
 }
 
-.fab-value { font-size: 20px; font-weight: 800; }
-.fab-unit { font-size: 10px; color: var(--text-dim); }
+.fab-value { font-size: 22px; font-weight: 400; }
+.fab-unit { font-size: 11px; color: var(--text-dim); }
 
 .fab-menu {
   display: flex;
@@ -303,7 +304,7 @@ input { font: inherit; color: inherit; }
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text-dim);
 }
 
@@ -325,14 +326,14 @@ input { font: inherit; color: inherit; }
   margin-bottom: 14px;
 }
 
-.rank-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.rank-title { font-size: 29px; font-weight: 400; letter-spacing: -0.02em; }
 
 .rank-edit {
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 400;
   color: var(--text-dim);
   border: 1px solid var(--line);
 }
@@ -373,25 +374,25 @@ input { font: inherit; color: inherit; }
   to { opacity: 1; transform: none; }
 }
 
-.rank-pos { font-size: 18px; font-weight: 800; color: var(--text-dim); text-align: center; }
+.rank-pos { font-size: 20px; font-weight: 400; color: var(--text-dim); text-align: center; }
 .rank-1 .rank-pos { color: var(--gold); }
 .rank-2 .rank-pos { color: var(--silver); }
 .rank-3 .rank-pos { color: var(--bronze); }
 .rank-1 { border-color: rgba(230, 168, 23, 0.5); }
 
 .rank-name {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.rank-time { font-size: 13px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.rank-time { font-size: 14px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
 
 .rank-count {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
   min-width: 40px;
   text-align: right;
@@ -401,8 +402,8 @@ input { font: inherit; color: inherit; }
   min-height: 44px;
   padding: 0 14px;
   border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 400;
   color: #ff6b6b;
   border: 1px solid rgba(255, 107, 107, 0.4);
 }
@@ -411,8 +412,8 @@ input { font: inherit; color: inherit; }
   position: fixed;
   right: calc(18px + var(--safe-r));
   bottom: calc(18px + var(--safe-b));
-  font-size: 30px;
-  font-weight: 300;
+  font-size: 33px;
+  font-weight: 400;
   background: var(--accent);
   border-color: transparent;
   color: #fff;
@@ -446,7 +447,7 @@ input { font: inherit; color: inherit; }
   to { opacity: 1; transform: none; }
 }
 
-.sheet-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+.sheet-title { font-size: 22px; font-weight: 400; margin-bottom: 16px; }
 
 .sheet-input {
   width: 100%;
@@ -455,12 +456,12 @@ input { font: inherit; color: inherit; }
   border-radius: 14px;
   background: var(--surface-2);
   border: 1px solid var(--line);
-  font-size: 17px;
+  font-size: 19px;
   user-select: text;
   -webkit-user-select: text;
 }
 
-.sheet-label { margin: 18px 0 10px; font-size: 14px; color: var(--text-dim); }
+.sheet-label { margin: 18px 0 10px; font-size: 15px; color: var(--text-dim); }
 
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -469,8 +470,8 @@ input { font: inherit; color: inherit; }
   min-height: 44px;
   padding: 0 6px;
   border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 400;
   color: var(--text-dim);
   background: var(--surface-2);
   border: 1px solid var(--line);
@@ -485,8 +486,8 @@ input { font: inherit; color: inherit; }
   flex: 1;
   min-height: 52px;
   border-radius: 14px;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 400;
 }
 
 .sheet-cancel { color: var(--text-dim); border: 1px solid var(--line); }
