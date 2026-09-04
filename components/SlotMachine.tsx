@@ -21,6 +21,19 @@ function easeOutQuart(t: number): number {
 
 const STRIP = Array.from({ length: REPEAT }, () => ITEMS).flat();
 
+/**
+ * 정지 순간 가장자리가 반짝이는 색. 기본 파랑과 같은 톤(채도 높고 밝은 색)에서 고른다.
+ * CSS의 rgba()에 그대로 넣기 위해 R, G, B 숫자만 담는다.
+ */
+const GLOW_COLORS = [
+  '12, 111, 255',   // 파랑
+  '0, 194, 255',    // 하늘
+  '124, 96, 255',   // 보라
+  '255, 77, 157',   // 분홍
+  '0, 214, 143',    // 민트
+  '255, 145, 61',   // 주황
+];
+
 type Props = {
   counts: Counts;
   onDraw: (itemId: string) => void;
@@ -32,6 +45,7 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
   const [current, setCurrent] = useState(ITEMS[initialIndex % ITEMS.length]);
   const [spinning, setSpinning] = useState(false);
   const [landed, setLanded] = useState(false);
+  const [glow, setGlow] = useState(GLOW_COLORS[0]);
 
   const reelRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
@@ -109,6 +123,7 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
       rafRef.current = null;
       setCurrent(winner);
       setSpinning(false);
+      setGlow(GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)]);
       setLanded(true);
       onDrawRef.current(winnerId);
     };
@@ -119,7 +134,12 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
   return (
     <div className="slot">
       <div className="slot-inner">
-      <div className={`slot-window${landed ? ' is-landed' : ''}`}>
+      <div
+        className={`slot-window${landed ? ' is-landed' : ''}`}
+        style={{ '--glow-rgb': glow } as React.CSSProperties}
+      >
+        {/* 뽑는 동안 뒤에서 은은하게 도는 무지개 빛. */}
+        <div className={`slot-aura${spinning ? ' is-spinning' : ''}`} aria-hidden />
         {/* 정지 시 바운스는 이 래퍼가 맡는다. 릴의 transform과 겹치면 안 된다. */}
         <div className={`slot-bounce${landed ? ' is-landed' : ''}`}>
           <div className="slot-reel" ref={reelRef}>

@@ -80,11 +80,56 @@ input { font: inherit; color: inherit; }
 
 .slot-window.is-landed { animation: slot-glow 700ms ease-out; }
 
+/* 반짝임 색은 --glow-rgb로 들어온다. 물품이 나올 때마다 다른 색을 쓴다. */
 @keyframes slot-glow {
-  0% { box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(12, 111, 255, 0.55); }
-  35% { box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 34px 6px rgba(12, 111, 255, 0.5); }
-  100% { box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(12, 111, 255, 0); }
+  0% {
+    box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(var(--glow-rgb), 0.55);
+    border-color: rgba(var(--glow-rgb), 0.75);
+  }
+  35% {
+    box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 36px 7px rgba(var(--glow-rgb), 0.5);
+    border-color: rgba(var(--glow-rgb), 0.6);
+  }
+  100% {
+    box-shadow: inset 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(var(--glow-rgb), 0);
+    border-color: var(--line);
+  }
 }
+
+/* 뽑는 동안 릴 뒤에서 천천히 도는 무지개. 아주 옅게만 비친다. */
+.slot-aura {
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 380ms ease;
+  background: conic-gradient(
+    from 0deg,
+    #ff4d6d,
+    #ff9f43,
+    #ffe066,
+    #63e6a8,
+    #4dd0e1,
+    #6c8cff,
+    #b47cff,
+    #ff4d6d
+  );
+  filter: blur(26px) saturate(1.6);
+  will-change: transform;
+}
+
+.slot-aura.is-spinning {
+  opacity: 0.24;
+  animation: aura-spin 3.2s linear infinite;
+}
+
+@keyframes aura-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 릴은 항상 무지개 위에 있어야 한다. */
+.slot-bounce { position: relative; z-index: 1; }
+.slot-mask { z-index: 2; }
 
 .slot-bounce.is-landed { animation: slot-settle 440ms cubic-bezier(0.22, 1.4, 0.36, 1); }
 
@@ -146,6 +191,7 @@ input { font: inherit; color: inherit; }
   .slot-reel { filter: none !important; }
   .slot-bounce.is-landed,
   .slot-window.is-landed { animation: none; }
+  .slot-aura.is-spinning { animation: none; opacity: 0.14; }
 }
 
 .app {
