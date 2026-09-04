@@ -21,12 +21,10 @@ export default function DrawTab({ playerCount }: Props) {
   }, []);
 
   const handleDraw = (slot: number, itemId: string) => {
-    console.log('[DEBUG] handleDraw called', { slot, itemId });
     setCountsBySlot((prev) => {
       const key = String(slot);
       const next = { ...prev, [key]: bumpCount(prev[key] ?? {}, itemId) };
       saveJSON(STORAGE_KEYS.counts, next);
-      console.log('[DEBUG] setCountsBySlot updater ran', { slot, itemId, prev, next });
       return next;
     });
   };
