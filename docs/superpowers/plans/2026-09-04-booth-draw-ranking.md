@@ -1962,3 +1962,11 @@ Vercel이 `main` 브랜치를 자동 배포한다.
 - **명세 커버리지:** 1~13절을 모두 태스크에 대응시켰다. 4절 물품 목록은 Task 2, 5절 뽑기 규칙은 Task 3, 6절 화면은 Task 8~10, 7절 애니메이션은 Task 7, 8절 저장은 Task 4·5, 9절 아이패드 대응은 Task 1·10, 11절 오류 처리는 Task 4·6, 12절 테스트는 Task 3~5와 Task 11이다.
 - **타입 일관성:** `Counts`는 `lib/draw.ts`에서만 정의하고 Task 8이 가져다 쓴다. `RankingEntry`는 `lib/ranking.ts`에서만 정의한다. `Tab`은 `components/TopBar.tsx`에서 내보내고 `app/page.tsx`가 가져다 쓴다.
 - **명세 대비 추가:** 명세 6.4절은 정렬을 랭킹 탭 안에서 다루지만, 테스트를 위해 `lib/ranking.ts`로 분리했다. 명세 10절의 모듈 표에 이 파일을 더한 것이다.
+
+## 구현 중 계획에서 벗어난 부분
+
+- **Vitest jsdom의 localStorage:** vitest의 jsdom 환경은 `window.localStorage`를 undefined로 노출한다. `test/setup.ts`에서 없을 때만 표준 호환 구현을 붙이고, `vitest.config.ts`에 `setupFiles`와 jsdom `url`을 지정했다.
+- **슬롯 정지 바운스 위치:** 바운스를 릴 자체에 걸면 릴의 `transform`을 덮어써서 위치가 0으로 튄다. `.slot-bounce` 래퍼를 하나 두고 거기에만 애니메이션을 걸었다.
+- **슬롯 확대:** 인원수가 적을 때 아이패드 화면이 비어 보여서 `.slot-inner`에 `--slot-scale`을 걸었다. 1명 1.75배부터 5명 1배까지다. 릴 계산은 200px 격자를 그대로 쓰고 시각적으로만 확대한다.
+- **`REPEAT` 12 → 8:** 5명 분할일 때 DOM 노드 수를 줄이기 위해서다. 감기 지점 `WRAP`이 여전히 한 사이클의 배수라 그림은 튀지 않는다.
+- **슬롯별 초기 물품:** 모든 슬롯이 같은 물품으로 시작하면 화면이 단조로워서 `initialIndex`를 슬롯마다 다르게 준다.

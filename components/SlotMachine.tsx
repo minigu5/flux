@@ -6,7 +6,7 @@ import { drawItem, type Counts } from '@/lib/draw';
 import ItemImage from './ItemImage';
 
 const CELL = 200;        // 릴 한 칸의 높이(px). 창 높이와 같다.
-const REPEAT = 12;       // 스트립에 물품 목록을 반복할 횟수
+const REPEAT = 8;        // 스트립에 물품 목록을 반복할 횟수
 const SPIN_MS = 1100;    // 등속 구간
 const EASE_MS = 600;     // 감속 구간
 const SPEED = CELL * 14; // 등속 구간 속도(px/s)
@@ -24,10 +24,12 @@ const STRIP = Array.from({ length: REPEAT }, () => ITEMS).flat();
 type Props = {
   counts: Counts;
   onDraw: (itemId: string) => void;
+  /** 첫 화면에 보여줄 물품 인덱스. 슬롯마다 달라야 화면이 단조롭지 않다. */
+  initialIndex?: number;
 };
 
-export default function SlotMachine({ counts, onDraw }: Props) {
-  const [current, setCurrent] = useState(ITEMS[0]);
+export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props) {
+  const [current, setCurrent] = useState(ITEMS[initialIndex % ITEMS.length]);
   const [spinning, setSpinning] = useState(false);
   const [landed, setLanded] = useState(false);
 
@@ -49,10 +51,14 @@ export default function SlotMachine({ counts, onDraw }: Props) {
   };
 
   useEffect(() => {
-    paint(0, 0);
+    const start = (initialIndex % ITEMS.length) * CELL;
+    offsetRef.current = start;
+    paint(start, 0);
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
+    // 최초 1회만 배치한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const spin = useCallback(() => {
@@ -112,6 +118,7 @@ export default function SlotMachine({ counts, onDraw }: Props) {
 
   return (
     <div className="slot">
+      <div className="slot-inner">
       <div className={`slot-window${landed ? ' is-landed' : ''}`}>
         {/* 정지 시 바운스는 이 래퍼가 맡는다. 릴의 transform과 겹치면 안 된다. */}
         <div className={`slot-bounce${landed ? ' is-landed' : ''}`}>
@@ -131,6 +138,7 @@ export default function SlotMachine({ counts, onDraw }: Props) {
       <button className="slot-button" onClick={spin} disabled={spinning}>
         {spinning ? '뽑는 중' : '랜덤 뽑기'}
       </button>
+      </div>
     </div>
   );
 }
