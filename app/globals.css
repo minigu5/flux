@@ -191,15 +191,15 @@ input { font: inherit; color: inherit; }
 
 /* 도는 동안에는 같은 버튼이 정지 버튼이 된다. 누르라고 천천히 맥동한다. */
 .slot-button.is-stop {
-  background: #e8402f;
+  background: #e8368f;
   color: #fff;
   animation: stop-pulse 1.1s ease-in-out infinite;
 }
 
 /* 크기가 아니라 빛으로만 맥동한다. 터치 대상이 움직이면 아이가 놓친다. */
 @keyframes stop-pulse {
-  0%, 100% { box-shadow: 0 8px 22px rgba(232, 64, 47, 0.35); }
-  50% { box-shadow: 0 8px 30px rgba(232, 64, 47, 0.75); }
+  0%, 100% { box-shadow: 0 8px 22px rgba(232, 54, 143, 0.35); }
+  50% { box-shadow: 0 8px 30px rgba(232, 54, 143, 0.75); }
 }
 
 @media (prefers-reduced-motion: reduce) {
