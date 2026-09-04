@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: '랜덤 뽑기',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: '랜덤 뽑기' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: '랜덤 뽑기' },
 };
 
 export const viewport: Viewport = {
@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#0b0d12',
+  themeColor: '#cdeffc',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
