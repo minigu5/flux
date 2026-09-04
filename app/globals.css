@@ -189,12 +189,21 @@ input { font: inherit; color: inherit; }
 .slot-button:active { transform: scale(0.96); }
 .slot-button:disabled { opacity: 0.45; box-shadow: none; }
 
-/* 뽑는 중에는 같은 버튼이 결과로 건너뛰는 버튼이 된다. */
-.slot-button.is-skip {
-  background: var(--surface-2);
-  color: var(--text-dim);
-  border: 1px solid var(--line);
-  box-shadow: none;
+/* 도는 동안에는 같은 버튼이 정지 버튼이 된다. 누르라고 천천히 맥동한다. */
+.slot-button.is-stop {
+  background: #e8402f;
+  color: #fff;
+  animation: stop-pulse 1.1s ease-in-out infinite;
+}
+
+/* 크기가 아니라 빛으로만 맥동한다. 터치 대상이 움직이면 아이가 놓친다. */
+@keyframes stop-pulse {
+  0%, 100% { box-shadow: 0 8px 22px rgba(232, 64, 47, 0.35); }
+  50% { box-shadow: 0 8px 30px rgba(232, 64, 47, 0.75); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot-button.is-stop { animation: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

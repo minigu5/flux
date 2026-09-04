@@ -7,8 +7,9 @@ import ItemImage from './ItemImage';
 
 const CELL = 200;        // 릴 한 칸의 높이(px). 창 높이와 같다.
 const REPEAT = 8;        // 스트립에 물품 목록을 반복할 횟수
-const SPIN_MS = 1100;    // 등속 구간
-const EASE_MS = 600;     // 감속 구간
+const MIN_SPIN_MS = 450; // 멈추기를 눌러도 최소 이만큼은 돈다
+const MAX_SPIN_MS = 12000; // 아무도 멈추지 않으면 알아서 멈춘다
+const EASE_MS = 700;     // 감속 구간
 const SPEED = CELL * 14; // 등속 구간 속도(px/s)
 const LOOPS = 2;         // 감속 구간에서 최소로 더 도는 바퀴 수
 const CYCLE = CELL * ITEMS.length;
@@ -44,14 +45,17 @@ type Props = {
 export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props) {
   const [current, setCurrent] = useState(ITEMS[initialIndex % ITEMS.length]);
   const [spinning, setSpinning] = useState(false);
+  const [stopping, setStopping] = useState(false);
   const [landed, setLanded] = useState(false);
   const [glow, setGlow] = useState(GLOW_COLORS[0]);
 
   const reelRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
   const rafRef = useRef<number | null>(null);
-  // 뽑는 중에 버튼을 다시 누르면 켜진다. 다음 프레임에서 바로 결과로 넘어간다.
-  const skipRef = useRef(false);
+  // 버튼을 두 번째로 누르면 켜진다. 다음 프레임에서 감속을 시작한다.
+  const stopRequestedRef = useRef(false);
+  // 감속 구간에 들어갔는지. 들어간 뒤에는 추가 입력을 받지 않는다.
+  const stoppingRef = useRef(false);
 
   // 최신 값을 애니메이션 콜백에서 읽기 위해 ref로 들고 있는다.
   const countsRef = useRef(counts);
@@ -78,63 +82,82 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
   }, []);
 
   const spin = useCallback(() => {
-    // 이미 돌고 있으면 결과로 건너뛴다.
+    // 두 번째 누름은 정지 요청이다. 감속이 시작된 뒤에는 무시한다.
     if (rafRef.current !== null) {
-      skipRef.current = true;
+      if (!stoppingRef.current) stopRequestedRef.current = true;
       return;
     }
-    skipRef.current = false;
 
-    const winnerId = drawItem(countsRef.current);
-    const winnerIndex = ITEMS.findIndex((i) => i.id === winnerId);
-    const winner = ITEMS[winnerIndex];
-
+    stopRequestedRef.current = false;
+    stoppingRef.current = false;
+    setStopping(false);
     setSpinning(true);
     setLanded(false);
 
     const start = performance.now();
     const startOffset = offsetRef.current;
-    const spinEndOffset = startOffset + (SPEED * SPIN_MS) / 1000;
 
-    // 감속이 끝날 목표 오프셋: LOOPS바퀴를 더 돈 뒤 당첨 칸에 정확히 정렬한다.
-    const base = spinEndOffset + CYCLE * LOOPS;
-    const remainder = ((base % CYCLE) + CYCLE) % CYCLE;
-    const forward = ((winnerIndex * CELL - remainder) % CYCLE + CYCLE) % CYCLE;
-    const endOffset = base + forward;
+    // 감속 구간에서만 쓰는 값들. 정지 요청을 받는 순간 채워진다.
+    let decelStart = 0;
+    let decelFrom = 0;
+    let decelTo = 0;
+    let winner = ITEMS[0];
+    let winnerId = '';
+
+    /** 지금 위치에서 감속을 시작한다. 당첨 물품은 이 시점에 정한다. */
+    const beginStop = (now: number) => {
+      winnerId = drawItem(countsRef.current);
+      const winnerIndex = ITEMS.findIndex((i) => i.id === winnerId);
+      winner = ITEMS[winnerIndex];
+
+      decelStart = now;
+      decelFrom = offsetRef.current;
+
+      // LOOPS바퀴를 더 돈 뒤 당첨 칸에 정확히 정렬한다.
+      const base = decelFrom + CYCLE * LOOPS;
+      const remainder = ((base % CYCLE) + CYCLE) % CYCLE;
+      const forward = (((winnerIndex * CELL - remainder) % CYCLE) + CYCLE) % CYCLE;
+      decelTo = base + forward;
+
+      stoppingRef.current = true;
+      setStopping(true);
+    };
 
     /** 릴을 목표 칸에 앉히고 뽑기를 마무리한다. */
     const finish = () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
-      offsetRef.current = endOffset;
-      paint(endOffset, 0);
+      stoppingRef.current = false;
+      offsetRef.current = decelTo;
+      paint(decelTo, 0);
       setCurrent(winner);
       setSpinning(false);
+      setStopping(false);
       setGlow(GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)]);
       setLanded(true);
       onDrawRef.current(winnerId);
     };
 
     const tick = (now: number) => {
-      if (skipRef.current) {
-        skipRef.current = false;
-        finish();
-        return;
-      }
-
       const elapsed = now - start;
 
-      if (elapsed < SPIN_MS) {
+      // 등속 구간. 멈추기를 누를 때까지 계속 돈다.
+      if (!stoppingRef.current) {
         const offset = startOffset + (SPEED * elapsed) / 1000;
         offsetRef.current = offset;
         paint(offset, 6);
+
+        const wantStop = stopRequestedRef.current && elapsed >= MIN_SPIN_MS;
+        if (wantStop || elapsed >= MAX_SPIN_MS) beginStop(now);
+
         rafRef.current = requestAnimationFrame(tick);
         return;
       }
 
-      const t = Math.min(1, (elapsed - SPIN_MS) / EASE_MS);
+      // 감속 구간.
+      const t = Math.min(1, (now - decelStart) / EASE_MS);
       const eased = easeOutQuart(t);
-      const offset = spinEndOffset + (endOffset - spinEndOffset) * eased;
+      const offset = decelFrom + (decelTo - decelFrom) * eased;
       offsetRef.current = offset;
       paint(offset, 6 * (1 - eased));
 
@@ -173,8 +196,12 @@ export default function SlotMachine({ counts, onDraw, initialIndex = 0 }: Props)
 
       <p className={`slot-name${spinning ? ' is-spinning' : ''}`}>{current.name}</p>
 
-      <button className={`slot-button${spinning ? ' is-skip' : ''}`} onClick={spin}>
-        {spinning ? '바로 보기' : '랜덤 뽑기'}
+      <button
+        className={`slot-button${spinning && !stopping ? ' is-stop' : ''}`}
+        onClick={spin}
+        disabled={stopping}
+      >
+        {stopping ? '뽑는 중' : spinning ? '멈추기' : '랜덤 뽑기'}
       </button>
       </div>
     </div>
